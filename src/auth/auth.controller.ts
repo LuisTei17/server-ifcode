@@ -39,7 +39,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Google OAuth callback' })
   async googleAuthRedirect(@Request() req, @Res() res: Response) {
     const result = await this.authService.validateGoogleUser(req.user);
-    
+
     // In a real application, you might want to redirect to a frontend URL with the token
     // For now, we'll return the result as JSON
     res.json(result);

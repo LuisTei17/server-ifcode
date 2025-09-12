@@ -52,7 +52,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && user.password && await bcrypt.compare(password, user.password)) {
+    if (user && user.password && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
       return result;
     }
@@ -61,12 +61,12 @@ export class AuthService {
 
   async validateGoogleUser(googleUser: any) {
     const { email, firstName, lastName, googleId } = googleUser;
-    
+
     let user = await this.usersService.findByGoogleId(googleId);
-    
+
     if (!user) {
       user = await this.usersService.findByEmail(email);
-      
+
       if (!user) {
         // Create new user
         user = await this.usersService.create({

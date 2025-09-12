@@ -49,3 +49,6 @@ lerna-debug.log*
 Dockerfile
 docker-compose.yml
 .dockerignore
+
+# Demo files (optional)
+# /demo
