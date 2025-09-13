@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './usuarios.entity';
 const fetch = require('node-fetch');
 // Função para buscar lat/lng via API de geolocalização
 async function fetchLatLngFromCep(cep: string): Promise<{ lat: number, lng: number } | null> {
@@ -59,6 +59,12 @@ export class UsersService {
       id: user.id_usuario,
       nome: user.nome_usuario,
       email: user.email_usuario,
+  // include avatar path and public URL (if BACKEND_URL provided)
+  avatarPath: user.path || null,
+  avatarUrl: user.path ? `${process.env.BACKEND_URL || 'http://localhost:4000'}/${user.path}` : null,
+  // also expose `path` and `url` to match uploadAvatar response
+  path: user.path || null,
+  url: user.path ? `${process.env.BACKEND_URL || 'http://localhost:4000'}/${user.path}` : null,
       telefone: user.telefone_usuario,
       dataNascimento: user.dt_nasc,
       cpf: user.cpf,
@@ -74,18 +80,25 @@ export class UsersService {
   }
 
   async updateUserProfile(id_usuario: number, data: any): Promise<void> {
-    const updateData: any = {
-      nome_usuario: data.nome,
-      email_usuario: data.email,
-      telefone_usuario: data.telefone,
-      dt_nasc: data.dataNascimento,
-      cpf: data.cpf,
-      contato_emerg: data.contatoEmergencia,
-      cep: data.cep,
-      num_endereco: data.numero,
-      complemento_endereco: data.complemento,
-    };
+    const updateData: any = {};
+    if (!data) {
+      return;
+    }
+    if (data.nome !== undefined) updateData.nome_usuario = data.nome;
+    if (data.email !== undefined) updateData.email_usuario = data.email;
+    if (data.telefone !== undefined) updateData.telefone_usuario = data.telefone;
+    if (data.dataNascimento !== undefined) updateData.dt_nasc = data.dataNascimento;
+    if (data.cpf !== undefined) updateData.cpf = data.cpf;
+    if (data.contatoEmergencia !== undefined) updateData.contato_emerg = data.contatoEmergencia;
+    if (data.cep !== undefined) updateData.cep = data.cep;
+    if (data.numero !== undefined) updateData.num_endereco = data.numero;
+    if (data.complemento !== undefined) updateData.complemento_endereco = data.complemento;
+    if (Object.keys(updateData).length === 0) return;
     await this.usersRepository.update(id_usuario, updateData);
+  }
+
+  async setUserAvatar(id_usuario: number, relativePath: string): Promise<void> {
+    await this.usersRepository.update(id_usuario, { path: relativePath });
   }
 
   async findByEmail(email_usuario: string): Promise<User | undefined> {

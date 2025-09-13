@@ -59,4 +59,7 @@ export class User {
 
     @Column({ nullable: true })
     providerId: string;
+
+    @Column({ name: 'path', nullable: true })
+    path: string; // caminho da imagem do usuário (relativo ao servidor)
 }

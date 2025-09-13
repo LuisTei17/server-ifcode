@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsuarioRankingController } from 'src/users/usuario-ranking.controller';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from 'src/users/user.entity';
+import { User } from 'src/users/usuarios.entity';
 import { UsuarioInteresse } from 'src/users/usuario-interesse.entity';
 
 describe('UsuarioRankingController', () => {

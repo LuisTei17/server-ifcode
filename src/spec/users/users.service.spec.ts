@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/users/usuarios.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from 'src/users/user.entity';
+import { User } from 'src/users/usuarios.entity';
 
 const userArray = [
   { id_usuario: 1, nome_usuario: 'João', email_usuario: 'joao@email.com', cep: '01234567', provider: 'google', providerId: '123' },
