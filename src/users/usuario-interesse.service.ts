@@ -15,12 +15,21 @@ export class UsuarioInteresseService {
   ) {}
 
   async addUserInterests(user: User, interesseIds: number[]): Promise<void> {
-    console.log('IDs recebidos para interesses:', interesseIds);
     for (const id of interesseIds) {
       const interesse = await this.interestRepository.findOne({ where: { id_interesse: id } });
-      console.log('Buscando interesse ID:', id, 'Encontrado:', interesse);
       if (interesse) {
         const usuarioInteresse = this.usuarioInteresseRepository.create({ user, interest: interesse });
+        await this.usuarioInteresseRepository.save(usuarioInteresse);
+      }
+    }
+  }
+
+  async replaceUserInterests(id_usuario: number, interesseIds: number[]): Promise<void> {
+    // Apenas adiciona novos interesses (não deleta os antigos)
+    for (const id of interesseIds) {
+      const interesse = await this.interestRepository.findOne({ where: { id_interesse: id } });
+      if (interesse) {
+        const usuarioInteresse = this.usuarioInteresseRepository.create({ user: { id_usuario } as any, interest: interesse });
         await this.usuarioInteresseRepository.save(usuarioInteresse);
       }
     }

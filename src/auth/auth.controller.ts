@@ -1,15 +1,39 @@
-import { Controller, Post, Body, Req, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Get, Put, Request, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { GoogleAuthGuard } from './google-auth.guard';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { JwtAuthGuard } from './jwt-auth.guard.js';
+import { UsersService } from '../users/users.service';
+import { UsuarioInteresseService } from '../users/usuario-interesse.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+    private readonly usuarioInteresseService: UsuarioInteresseService,
+  ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  async getProfile(@Request() req) {
+    const user = await this.usersService.findByIdWithInterests(req.user.id_usuario);
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('profile')
+  async updateProfile(@Request() req, @Body() body) {
+    await this.usersService.updateUserProfile(req.user.id_usuario, body);
+    if (body.interesses) {
+      await this.usuarioInteresseService.replaceUserInterests(req.user.id_usuario, body.interesses);
+    }
+    return await this.usersService.findByIdWithInterests(req.user.id_usuario);
+  }
 
   @Post('register')
   @ApiOperation({ summary: 'Register user (local)' })
@@ -61,8 +85,18 @@ export class AuthController {
       }
     })
   @UseGuards(LocalAuthGuard)
-  async login(@Req() req) {
-    return this.authService.login(req.user);
+  async login(@Req() req, @Res() res) {
+    const result = await this.authService.login(req.user);
+    // Set cookie JWT corretamente para localhost
+    res.cookie('jwt', result.access_token, {
+      httpOnly: true,
+      sameSite: 'lax', // use 'none' apenas se for HTTPS cross-domain
+      secure: false,   // true se for HTTPS
+      maxAge: 1000 * 60 * 60 * 24 // 1 dia
+      // NÃO defina domain para localhost
+    });
+    delete result.access_token;
+    return res.json(result);
   }
 
   @Get('google')
