@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import fetch from 'node-fetch';
-
+const fetch = require('node-fetch');
 // Função para buscar lat/lng via API de geolocalização
 async function fetchLatLngFromCep(cep: string): Promise<{ lat: number, lng: number } | null> {
   try {
