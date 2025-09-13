@@ -22,24 +22,43 @@ export class UsuarioRankingController {
     @ApiResponse({
       status: 200,
       description: 'Lista de usuários ranqueados',
-      schema: {
-        example: [
-          {
-            id_usuario: 2,
-            nome_usuario: 'Maria',
-            email_usuario: 'maria@email.com',
-            cod_tip_usuario: 3,
-            lat: -23.5,
-            lng: -46.6,
-            dt_nasc: '1992-05-10',
-            correlacionados: 2,
-            dist: 5.2,
-            diffIdade: 2,
-            usuarioInteresses: [
-              { id_usuario_interesse: 1, interest: { id_interesse: 1, descricao: 'Esportes' } }
-            ]
+      content: {
+        'application/json': {
+          schema: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id_usuario: { type: 'integer', example: 2 },
+                nome_usuario: { type: 'string', example: 'Maria' },
+                email_usuario: { type: 'string', example: 'maria@email.com' },
+                cod_tip_usuario: { type: 'integer', example: 3 },
+                lat: { type: 'number', example: -23.5 },
+                lng: { type: 'number', example: -46.6 },
+                dt_nasc: { type: 'string', format: 'date', example: '1992-05-10' },
+                correlacionados: { type: 'integer', example: 2 },
+                dist: { type: 'number', example: 5.2 },
+                diffIdade: { type: 'integer', example: 2 },
+                usuarioInteresses: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id_usuario_interesse: { type: 'integer', example: 1 },
+                      interest: {
+                        type: 'object',
+                        properties: {
+                          id_interesse: { type: 'integer', example: 1 },
+                          descricao: { type: 'string', example: 'Esportes' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
-        ]
+        }
       }
     })
   async getRankedUsuarios(
