@@ -1,13 +1,16 @@
-import { Controller, Post, Body, Req, UseGuards, Get, Put, Request, Res } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Get, Put, Request, Res, UploadedFile, UseInterceptors, Param, UnauthorizedException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { GoogleAuthGuard } from './google-auth.guard';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiConsumes } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
-import { UsersService } from '../users/users.service';
 import { UsuarioInteresseService } from '../users/usuario-interesse.service';
+import { UsersService } from '../users/usuarios.service';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -28,11 +31,54 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Put('profile')
   async updateProfile(@Request() req, @Body() body) {
-    await this.usersService.updateUserProfile(req.user.id_usuario, body);
-    if (body.interesses) {
-      await this.usuarioInteresseService.replaceUserInterests(req.user.id_usuario, body.interesses);
+    const safeBody = body || {};
+    await this.usersService.updateUserProfile(req.user.id_usuario, safeBody);
+    if (safeBody.interesses && Array.isArray(safeBody.interesses)) {
+      await this.usuarioInteresseService.replaceUserInterests(req.user.id_usuario, safeBody.interesses);
     }
     return await this.usersService.findByIdWithInterests(req.user.id_usuario);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('profile/avatar')
+  @ApiOperation({ summary: 'Upload avatar do usuário' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    }),
+  )
+  async uploadAvatar(@Request() req, @UploadedFile() file) {
+    if (!file) throw new Error('No file uploaded');
+    // Ensure authenticated
+    if (!req.user || !req.user.id_usuario) {
+      throw new UnauthorizedException('User not authenticated. Send cookie or Authorization header.');
+    }
+    // Normalize to a clean uploads/<filename> path so static serving works reliably
+    const filename = file.filename;
+    const relativePath = `uploads/${filename}`;
+    console.log('[AuthController] uploadAvatar user=', req.user.id_usuario, 'path=', relativePath);
+    await this.usersService.setUserAvatar(req.user.id_usuario, relativePath);
+    const frontendPath = `${process.env.BACKEND_URL || 'http://localhost:4000'}/${relativePath}`;
+    return { path: relativePath, url: frontendPath };
   }
 
   @Post('register')
@@ -133,7 +179,7 @@ export class AuthController {
       secure: false,
       maxAge: 1000 * 60 * 60 * 24,
     });
-    // redirect to frontend (configurable)
+
     const frontend = process.env.FRONTEND_URL || 'http://localhost:3000';
     return res.redirect(frontend);
   }

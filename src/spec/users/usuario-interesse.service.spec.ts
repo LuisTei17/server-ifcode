@@ -3,7 +3,7 @@ import { UsuarioInteresseService } from 'src/users/usuario-interesse.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UsuarioInteresse } from 'src/users/usuario-interesse.entity';
 import { Interest } from 'src/users/interest.entity';
-import { User } from 'src/users/user.entity';
+import { User } from 'src/users/usuarios.entity';
 
 describe('UsuarioInteresseService', () => {
   let service: UsuarioInteresseService;

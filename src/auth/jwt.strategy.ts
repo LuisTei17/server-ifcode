@@ -1,4 +1,4 @@
-import { Strategy } from 'passport-jwt';
+import { Strategy, ExtractJwt } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 
@@ -14,13 +14,21 @@ function cookieExtractor(req: any) {
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      jwtFromRequest: cookieExtractor,
+      // Accept token from cookie OR Authorization Bearer header
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        cookieExtractor,
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'default_secret',
+      secretOrKey: 'codefofo',
     });
-  }
+  }  
 
-  async validate(payload: any) {
-    return { userId: payload.sub, email: payload.email };
+async validate(payload: any) {
+    // Debug: log incoming JWT payload to help diagnose 401 issues.
+    // NOTE: remove this log after debugging to avoid sensitive info in logs.
+    console.log('[JwtStrategy] validate payload =', JSON.stringify(payload));
+    // Return fields matching the rest of the codebase (id_usuario)
+    return { id_usuario: payload.sub, email: payload.email };
   }
 }
