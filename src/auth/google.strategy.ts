@@ -18,8 +18,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     let user = await this.usersService.findOrCreateSocial({
       provider: 'google',
       providerId: profile.id,
-      name: profile.displayName,
-      email: profile.emails[0].value,
+      nome_usuario: profile.displayName,
+      email_usuario: profile.emails[0].value,
     });
     done(null, user);
   }
