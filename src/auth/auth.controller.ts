@@ -95,7 +95,6 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 // 1 dia
       // NÃO defina domain para localhost
     });
-    delete result.access_token;
     return res.json(result);
   }
 

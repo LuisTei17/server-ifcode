@@ -72,14 +72,20 @@ export class UsuarioRankingController {
     const usuarios = await this.userRepository.find({ where: { cod_tip_usuario: Not(baseUser.cod_tip_usuario) } });
 
     // 3. Busca interesses do usuário base
-    const baseInteresses = await this.usuarioInteresseRepository.find({ where: { user: { id_usuario: id } } });
-    const baseInteresseIds = baseInteresses.map(i => i.interest.id_interesse);
+    const baseInteresses = await this.usuarioInteresseRepository.find({
+      where: { user: { id_usuario: id } },
+      relations: ['user', 'interest'],
+    });
+    const baseInteresseIds = baseInteresses.map(i => i.interest?.id_interesse);
 
     // 4. Rankeia por distância (CEP) e interesses correlacionados
     const ranked = await Promise.all(usuarios.map(async u => {
       // Interesses correlacionados
-      const interesses = await this.usuarioInteresseRepository.find({ where: { user: { id_usuario: u.id_usuario } } });
-      const interesseIds = interesses.map(i => i.interest.id_interesse);
+      const interesses = await this.usuarioInteresseRepository.find({
+        where: { user: { id_usuario: u.id_usuario } },
+        relations: ['user', 'interest'],
+      });
+      const interesseIds = interesses.map(i => i.interest?.id_interesse);
       const correlacionados = baseInteresseIds.filter(id => interesseIds.includes(id)).length;
 
       // Distância por lat/lng (Haversine)
@@ -103,7 +109,25 @@ export class UsuarioRankingController {
         a.dist - b.dist ||
         a.diffIdade - b.diffIdade
       );
-    return ranked.map(r => r.usuario);
+    return await Promise.all(ranked.map(async r => {
+      const usuario = r.usuario;
+      const usuarioInteresses = await this.usuarioInteresseRepository.find({
+        where: { user: { id_usuario: usuario.id_usuario } },
+        relations: ['user', 'interest'],
+      });
+      return {
+        ...usuario,
+        correlacionados: r.correlacionados,
+        dist: r.dist,
+        diffIdade: r.diffIdade,
+        usuarioInteresses: usuarioInteresses.map(ui => ({
+          id_usuario_interesse: ui.id_usuario_interesse,
+          id_usuario: ui.user?.id_usuario,
+          id_interesse: ui.interest?.id_interesse,
+          interest: ui.interest
+        }))
+      };
+    }));
   }
 }
 function getDistance(a: { lat: number, lng: number }, b: { lat: number, lng: number }) {
