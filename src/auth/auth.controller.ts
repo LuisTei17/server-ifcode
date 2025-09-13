@@ -2,7 +2,6 @@ import { Controller, Post, Body, Req, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { GoogleAuthGuard } from './google-auth.guard';
-import { FacebookAuthGuard } from './facebook-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -29,13 +28,4 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @Get('facebook')
-  @UseGuards(FacebookAuthGuard)
-  async facebookAuth() {}
-
-  @Get('facebook/callback')
-  @UseGuards(FacebookAuthGuard)
-  async facebookAuthCallback(@Req() req) {
-    return this.authService.login(req.user);
-  }
 }
