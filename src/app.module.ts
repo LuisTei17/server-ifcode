@@ -5,19 +5,29 @@ import { VisitsModule } from './visits/visits.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
 import { Visit } from './visits/visit.entity';
+import * as mysql from 'mysql2';
+
  
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mariadb',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT, 10) || 3306,
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
-      entities: [User, Visit],
-      synchronize: true,
-    }),
+  type: 'mysql',
+  host: 'localhost',
+  port: 3306,
+  username: 'root',
+  password: 'root',
+  database: 'ifcode',
+  synchronize: true,
+  entities: [__dirname + '/**/*.entity{.ts,.js}'],
+  // Adicione isso se estiver usando mysql2
+  extra: {
+    authPlugins: {
+      mysql_native_password: () => require('mysql2').authPlugins.mysql_native_password
+    }
+  }
+})
+
+,
     AuthModule,
     UsersModule,
     VisitsModule,

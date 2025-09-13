@@ -1,7 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { UsuarioInteresse } from './usuario-interesse.entity';
 
 @Entity()
 export class User {
+    @OneToMany(() => UsuarioInteresse, usuarioInteresse => usuarioInteresse.user)
+    usuarioInteresses: UsuarioInteresse[];
     @PrimaryGeneratedColumn({ name: 'id_usuario' })
     id_usuario: number;
 
