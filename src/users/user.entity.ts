@@ -41,6 +41,13 @@ export class User {
     @Column({ name: 'complemento_endereco', nullable: true })
     complemento_endereco: string;
 
+
+    @Column({ name: 'lat', type: 'float', nullable: true })
+    lat: number;
+
+    @Column({ name: 'lng', type: 'float', nullable: true })
+    lng: number;
+
     @Column({ name: 'HASH', nullable: true })
     HASH: string;
 
