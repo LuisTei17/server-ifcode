@@ -15,8 +15,8 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async findByEmail(email: string): Promise<User | undefined> {
-    return this.usersRepository.findOne({ where: { email } });
+  async findByEmail(email_usuario: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ where: { email_usuario } });
   }
 
   async findOrCreateSocial(data: Partial<User>): Promise<User> {

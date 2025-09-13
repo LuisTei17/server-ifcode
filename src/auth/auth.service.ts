@@ -11,10 +11,10 @@ export class AuthService {
   ) {}
 
   async register(body) {
-  const hashedPassword = await bcrypt.hash(body.password, 10);
+    const hashedPassword = await bcrypt.hash(body.password, 10);
     const user = await this.usersService.create({
       ...body,
-      password: hashedPassword,
+      HASH: hashedPassword,
       provider: 'local',
     });
     return user;
@@ -22,7 +22,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
-  if (user && user.password && await bcrypt.compare(password, user.password)) {
+  if (user && user.HASH && await bcrypt.compare(password, user.HASH)) {
       return user;
     }
     return null;
