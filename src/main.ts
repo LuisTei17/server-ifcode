@@ -8,7 +8,8 @@ async function bootstrap() {
   console.log('######################');
   console.log(process.env.DB_USER);
   console.log('######################');
-    const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule);
+  app.enableCors();
  
   const config = new DocumentBuilder()
     .setTitle('Volunteer Elderly API')
