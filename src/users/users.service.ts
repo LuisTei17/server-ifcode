@@ -95,7 +95,13 @@ export class UsersService {
   async findOrCreateSocial(data: Partial<User>): Promise<User> {
     let user = await this.usersRepository.findOne({ where: { provider: data.provider, providerId: data.providerId } });
     if (!user) {
-      user = this.usersRepository.create(data);
+      // Ensure cod_tip_usuario has a sensible default when creating social users
+      const defaultTipo = parseInt(process.env.GOOGLE_DEFAULT_USER_TYPE || '2', 10);
+      const createData = {
+        ...data,
+        cod_tip_usuario: data.cod_tip_usuario || defaultTipo,
+      } as Partial<User>;
+      user = this.usersRepository.create(createData);
       await this.usersRepository.save(user);
     }
     return user;

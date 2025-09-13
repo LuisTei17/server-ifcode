@@ -124,8 +124,18 @@ export class AuthController {
       }
     })
   @UseGuards(GoogleAuthGuard)
-  async googleAuthCallback(@Req() req) {
-    return this.authService.login(req.user);
+  async googleAuthCallback(@Req() req, @Res() res) {
+    const result = await this.authService.login(req.user);
+    // set same cookie as local login
+    res.cookie('jwt', result.access_token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24,
+    });
+    // redirect to frontend (configurable)
+    const frontend = process.env.FRONTEND_URL || 'http://localhost:3000';
+    return res.redirect(frontend);
   }
 
 }

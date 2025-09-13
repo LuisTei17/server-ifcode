@@ -14,17 +14,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       useFactory: (config: ConfigService) => ({
         type: 'mysql',
         host: config.get('DB_HOST'),
-        port: +config.get<number>('DB_PORT'),
+        port: config.get<number>('DB_PORT'),
         username: config.get('DB_USER'),
         password: config.get('DB_PASS'),
         database: config.get('DB_NAME'),
         synchronize: true,
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          extra: {
-    authPlugins: {
-      mysql_native_password: () => require('mysql2').authPlugins.mysql_native_password
-    }
-  }
       }),
     }),
     AuthModule,
