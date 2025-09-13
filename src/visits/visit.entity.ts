@@ -6,11 +6,29 @@ export class Visit {
   id: number;
 
   @Column()
-  date: Date;
+  id_idoso: number;
 
   @Column()
-  userId: number;
+  id_voluntario: number;
 
   @Column()
-  elderlyName: string;
+  id_interesse: number;
+
+  @Column({ type: 'datetime' })
+  datahora_inicio: Date;
+
+  @Column({ type: 'datetime', nullable: true })
+  datahora_fim: Date;
+
+  @Column({ type: 'boolean', default: false })
+  teve_emergencia: boolean;
+
+  @Column({ type: 'int', nullable: true })
+  avaliacao_idoso: number;
+
+  @Column({ type: 'int', nullable: true })
+  avaliacao_voluntario: number;
+
+  @Column({ type: 'varchar', length: 20 })
+  status: string;
 }
