@@ -26,7 +26,7 @@ describe('VisitsController', () => {
   });
 
   it('should create a visit', async () => {
-    const dto: CreateVisitDto = { id_idoso: 1, id_voluntario: 2, id_interesse: 5, datahora_inicio: '2025-09-13 14:00:00' };
+    const dto: CreateVisitDto = { id_idoso: 1, id_voluntario: 2, id_interesse: 5, datahora_inicio: '2025-09-13 14:00:00', datahora_fim: null, status: 'reserva', nota_idoso: null, nota_voluntario: null };
     const result = await controller.create(dto);
     expect(result).toHaveProperty('id');
     expect(result.status).toBe('reserva');

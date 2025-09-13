@@ -12,6 +12,19 @@ export class CreateVisitDto {
 
   @ApiProperty({ type: String, example: '2025-09-13 14:00:00', description: 'Data/hora de início da visita (YYYY-MM-DD HH:mm:ss)' })
   datahora_inicio: string;
+
+  @ApiProperty({ type: String, example: '2025-09-13 14:00:00', description: 'Data/hora de fim da visita (YYYY-MM-DD HH:mm:ss)' })
+  datahora_fim: string;
+
+  @ApiProperty({ type: String, example: 'aceita', description: 'Novo status da visita' })
+  status: string;
+
+  @ApiProperty({ type: Number, example: '5', description: 'Nota do idoso' })
+  nota_idoso: number;
+
+  @ApiProperty({ type: Number, example: '4', description: 'Nota do voluntario' })
+  nota_voluntario: number;
+
 }
 
 export class UpdateVisitStatusDto {
